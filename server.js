@@ -34,6 +34,9 @@ app.get('/api/cart', (req, res) => {
 
 app.post('/api/cart/add', (req, res) => {
     const { productId, quantity } = req.body;
+    if (typeof quantity !== 'number' || quantity <= 0) {
+        return res.status(400).json({ message: 'Quantity must be a positive number' });
+    }
     const product = products.find(p => p.id === productId);
 
     if (!product) {
@@ -80,6 +83,10 @@ app.get('/api/wallet', (req, res) => {
 // --- Checkout Route ---
 app.post('/api/checkout', (req, res) => {
     const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    if (cart.length === 0) {
+        return res.status(400).json({ message: 'Cart is empty' });
+    }
 
     if (userWallet.balance >= totalAmount) {
         userWallet.balance -= totalAmount;
